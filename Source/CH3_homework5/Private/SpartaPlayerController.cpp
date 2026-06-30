@@ -117,6 +117,8 @@ void ASpartaPlayerController::ShowMainMenu(bool bIsRestart)
 			}
 		}
 	}
+
+	SetPause(true);
 }
 
 void ASpartaPlayerController::ShowGameHUD()
@@ -133,6 +135,11 @@ void ASpartaPlayerController::ShowGameHUD()
 		MainMenuWidgetInstance = nullptr;
 	}
 
+	if (HUDWidgetClass == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetClass가 플레이어 컨트롤러에 할당되지 않았습니다!"));
+		return; 
+	}
 
 	if (!HUDWidgetInstance)
 	{
@@ -145,10 +152,12 @@ void ASpartaPlayerController::ShowGameHUD()
 			SetInputMode(FInputModeGameOnly());
 		}
 
-		ASpartaGameState* SpartaGameState = GetWorld() ? GetWorld()->GetGameState<ASpartaGameState>() : nullptr;
-		if (SpartaGameState)
+		if (GetWorld())
 		{
-			SpartaGameState->UpdateHUD();
+			if (ASpartaGameState* SpartaGameState = GetWorld()->GetGameState<ASpartaGameState>())
+			{
+				SpartaGameState->UpdateHUD();
+			}
 		}
 	}
 }
@@ -162,7 +171,6 @@ void ASpartaPlayerController::StartGame()
 		SpartaGameInstance->TotalScore = 0;
 	}
 
-	UGameplayStatics::OpenLevel(GetWorld(), FName("BasicLevel"));
 	SetPause(false);
-
+	UGameplayStatics::OpenLevel(GetWorld(), FName("BasicLevel"));
 }
